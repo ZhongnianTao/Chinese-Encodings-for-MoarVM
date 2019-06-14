@@ -2,12 +2,12 @@
 #include "gb2312_codeindex.h"
 
 MVMString * MVM_string_gb2312_decode(MVMThreadContext *tc, const MVMObject *result_type, const char *gb2312, size_t bytes) {
+	size_t i, result_graphs;
+	
 	MVMString *result = (MVMString *)REPR(result_type)->allocate(tc, STABLE(result_type));
 	
 	result->body.storage_type = MVM_STRING_GRAPHEME_32;
 	result->body.storage.blob_32 = MVM_malloc(sizeof(MVMGrapheme32) * bytes);
-	
-	size_t i, result_graphs;
 	
 	result_graphs = 0;
 	
@@ -15,7 +15,7 @@ MVMString * MVM_string_gb2312_decode(MVMThreadContext *tc, const MVMObject *resu
 		if (0 <= gb2312[i] && gb2312[i] <= 127) {
 			//	ASCII character
 			if (gb2312[i] == '\r' && i+1 < bytes && gb2312[i+1] == '\n') {
-				result->body.storage.blog_32[result_graphs++] = MVM_nfg_crlf_grapheme(tc);
+				result->body.storage.blob_32[result_graphs++] = MVM_nfg_crlf_grapheme(tc);
 				i++;
 			}
 			else {
