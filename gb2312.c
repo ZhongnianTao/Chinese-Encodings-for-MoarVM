@@ -27,7 +27,7 @@ MVMString * MVM_string_gb2312_decode(MVMThreadContext *tc, const MVMObject *resu
 				MVMuint8 byte1 = gb2312[i];
 				MVMuint8 byte2 = gb2312[i+1];
 				MVMuint16 codepoint = (MVMuint16)byte1 * 256 + byte2;
-				MVMGrapheme32 index = gb2312_cp_to_index(codepoint);
+				MVMGrapheme32 index = gb2312_index_to_cp(codepoint);
 				if (index != GB2312_NULL) {
 					result->body.storage.blob_32[result_graphs++] = index;
 					i++;
@@ -111,7 +111,7 @@ MVMuint32 MVM_string_gb2312_decodestream(MVMThreadContext *tc, MVMDecodeStream *
 			else {
 				if (last_was_first_byte) {
 					MVMuint16 combined_codepoint = last_codepoint * 256 + codepoint;
-					graph = gb2312_cp_to_index(combined_codepoint);
+					graph = gb2312_index_to_cp(combined_codepoint);
 					if (graph == GB2312_NULL) {
 						MVM_exception_throw_adhoc(tc, "Error decoding gb2312 string: could not decode codepoint 0x%hhX", combined_codepoint);
 					}
