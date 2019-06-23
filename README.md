@@ -5,6 +5,7 @@ Todo Next:
 + Debug ``MVM_string_gb2312_decodestream``
 + Debug `MVM_string_gb2312_encode` 
 + Find out how to incorporate the code into MoarVM 
++ Write the comments for all code
 
 Week 4:
 
