@@ -2,10 +2,19 @@
 
 Todo Next:
 
-+ Test and debug `MVM_string_gb2312_decode` 
-+ Test and debug ``MVM_string_gb2312_decodestream``
-+ Write ``MVM_string_gb2312_encode`` 
-+ Find a better structure for codepoint mapping of GB2312 and Unicode
++ Debug ``MVM_string_gb2312_decodestream``
++ Debug `MVM_string_gb2312_encode` 
++ Find out how to incorporate the code into MoarVM 
+
+Week 4:
+
++ Implemented ``MVM_string_gb2312_encode`` function.
++ Developed the conversion table from Unicode to GB2312(EUC-CN)
+
+Week 3:
+
++ Tested `MVM_string_gb2312_decode` 
++ Changed the codepoint mapping to a two-dimensional array
 
 Week 2:
 
