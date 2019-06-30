@@ -38,7 +38,8 @@ MVMString * MVM_string_gb2312_decode(MVMThreadContext *tc, const MVMObject *resu
             }
             else {
                 MVM_exception_throw_adhoc(tc, 
-				"Error decoding gb2312 string: invalid gb2312 format (two bytes for a gb2312 character). Last byte seen was 0x%hhX\n", (MVMuint8)gb2312[i]);
+                "Error decoding gb2312 string: invalid gb2312 format (two bytes for a gb2312 character). Last byte seen was 0x%hhX\n", 
+				(MVMuint8)gb2312[i]);
             }
         }
     }
@@ -93,7 +94,8 @@ MVMuint32 MVM_string_gb2312_decodestream(MVMThreadContext *tc, MVMDecodeStream *
             if (codepoint <= 127) {
                 if (last_was_first_byte) {
                     MVM_exception_throw_adhoc(tc, 
-					"Error decoding gb2312 string: invalid gb2312 format (two bytes for a gb2312 character). Last byte seen was 0x%hhX\n", last_codepoint);
+                "Error decoding gb2312 string: invalid gb2312 format (two bytes for a gb2312 character). Last byte seen was 0x%hhX\n", 
+                last_codepoint);
                 }
 
                 if (last_was_cr) {
@@ -119,7 +121,8 @@ MVMuint32 MVM_string_gb2312_decodestream(MVMThreadContext *tc, MVMDecodeStream *
                     MVMuint16 combined_codepoint = last_codepoint * 256 + codepoint;
                     graph = gb2312_index_to_cp(combined_codepoint);
                     if (graph == GB2312_NULL) {
-                        MVM_exception_throw_adhoc(tc, "Error decoding gb2312 string: could not decode codepoint 0x%hhX", combined_codepoint);
+                        MVM_exception_throw_adhoc(tc, "Error decoding gb2312 string: could not decode codepoint 0x%hhX", 
+                        combined_codepoint);
                     }
                     last_was_first_byte = 0;
                 }
@@ -231,9 +234,7 @@ char * MVM_string_gb2312_encode_substr(MVMThreadContext *tc, MVMString *str,
                     }
                     else {
                         MVM_free(result);
-                        MVM_exception_throw_adhoc(tc,
-                                                  "Error encoding gb2312 string: could not encode codepoint 0x%hhX",
-                                                  codepoint);
+                        MVM_exception_throw_adhoc(tc, "Error encoding gb2312 string: could not encode codepoint 0x%hhX", codepoint);
                     }
                 }
                 result[out_pos++] = gb2312_cp / 256;
