@@ -13,7 +13,7 @@ MVMString * MVM_string_gb2312_decode(MVMThreadContext *tc, const MVMObject *resu
 
     for (i = 0; i < bytes; i++) {
         if (0 <= gb2312[i] && gb2312[i] <= 127) {
-            //	ASCII character
+            /* Ascii character */
             if (gb2312[i] == '\r' && i + 1 < bytes && gb2312[i + 1] == '\n') {
                 result->body.storage.blob_32[result_graphs++] = MVM_nfg_crlf_grapheme(tc);
                 i++;
@@ -59,17 +59,20 @@ MVMuint32 MVM_string_gb2312_decodestream(MVMThreadContext *tc, MVMDecodeStream *
 
     MVMint32 last_was_first_byte;
     MVMint32 last_codepoint;
-
+    
+    /* If there's no buffers, we're done. */ 
     if (!ds->bytes_head)
         return 0;
     last_accept_pos = ds->bytes_head_pos;
 
+    /* If we're asked for zero chars, also done. */
     if (stopper_chars && *stopper_chars == 0)
         return 1;
 
     bufsize = ds->result_size_guess;
     buffer = MVM_malloc(bufsize * sizeof(MVMGrapheme32));
 
+    /* Decode each of the buffers. */
     cur_bytes = ds->bytes_head;
     last_was_cr = 0;
     reached_stopper = 0;
@@ -78,6 +81,7 @@ MVMuint32 MVM_string_gb2312_decodestream(MVMThreadContext *tc, MVMDecodeStream *
     last_codepoint = 0;
 
     while (cur_bytes) {
+        /* Process this buffer. */
         MVMint32 pos = cur_bytes == ds->bytes_head ? ds->bytes_head_pos : 0;
         MVMuint8 *bytes = (MVMuint8 *)cur_bytes->bytes;
 
@@ -125,6 +129,8 @@ MVMuint32 MVM_string_gb2312_decodestream(MVMThreadContext *tc, MVMDecodeStream *
             }
 
             if (count == bufsize) {
+                /* We filled the buffer. Attach this one to the buffers
+                 * linked list, and continue with a new one. */
                 MVM_string_decodestream_add_chars(tc, ds, buffer, bufsize);
                 buffer = MVM_malloc(bufsize * sizeof(MVMGrapheme32));
                 count = 0;
@@ -147,6 +153,8 @@ MVMuint32 MVM_string_gb2312_decodestream(MVMThreadContext *tc, MVMDecodeStream *
 
 done:
 
+    /* Attach what we successfully parsed as a result buffer, and trim away
+     * what we chewed through. */
     if (count) {
         MVM_string_decodestream_add_chars(tc, ds, buffer, count);
     }
@@ -177,12 +185,13 @@ char * MVM_string_gb2312_encode_substr(MVMThreadContext *tc, MVMString *str,
 
     if (replacement)
         repl_bytes = (MVMuint8 *) MVM_string_gb2312_encode_substr(tc,
-                                                                  replacement, &repl_length, 0, -1, NULL, translate_newlines);
+                     replacement, &repl_length, 0, -1, NULL, translate_newlines);
 
     result_alloc = lengthu;
     result = MVM_malloc(result_alloc + 1);
 
     if (str->body.storage_type == MVM_STRING_GRAPHEME_ASCII) {
+        /* No encoding needed; directly copy. */
         memcpy(result, str->body.storage.blob_ascii, lengthu);
         result[lengthu] = 0;
         if (output_size)
@@ -200,6 +209,7 @@ char * MVM_string_gb2312_encode_substr(MVMThreadContext *tc, MVMString *str,
                 result = MVM_realloc(result, result_alloc + 2);
             }
             if (codepoint <= 0x7F) {
+                /* ASCII character */
                 result[out_pos++] = codepoint;
             }
             else {
@@ -232,7 +242,7 @@ char * MVM_string_gb2312_encode_substr(MVMThreadContext *tc, MVMString *str,
         if (output_size)
             *output_size = out_pos;
     }
-    MVM_free(repl_bytes);
+    if (repl_bytes) MVM_free(repl_bytes);
     return (char *)result;
 }
 
