@@ -37,7 +37,8 @@ MVMString * MVM_string_gb2312_decode(MVMThreadContext *tc, const MVMObject *resu
                 }
             }
             else {
-                MVM_exception_throw_adhoc(tc, "Error decoding gb2312 string: invalid gb2312 format (two bytes for a gb2312 character)");
+                MVM_exception_throw_adhoc(tc, 
+				"Error decoding gb2312 string: invalid gb2312 format (two bytes for a gb2312 character). Last byte seen was 0x%hhX\n", (MVMuint8)gb2312[i]);
             }
         }
     }
@@ -58,7 +59,7 @@ MVMuint32 MVM_string_gb2312_decodestream(MVMThreadContext *tc, MVMDecodeStream *
     MVMuint32 reached_stopper;
 
     MVMint32 last_was_first_byte;
-    MVMint32 last_codepoint;
+    MVMuint16 last_codepoint;
     
     /* If there's no buffers, we're done. */ 
     if (!ds->bytes_head)
@@ -87,11 +88,12 @@ MVMuint32 MVM_string_gb2312_decodestream(MVMThreadContext *tc, MVMDecodeStream *
 
         while (pos < cur_bytes->length) {
             MVMGrapheme32 graph;
-            MVMuint16 codepoint = bytes[pos++];
+            MVMuint16 codepoint = (MVMuint16) bytes[pos++];
 
             if (codepoint <= 127) {
                 if (last_was_first_byte) {
-                    MVM_exception_throw_adhoc(tc, "Error decoding gb2312 string: invalid gb2312 format (two bytes for a gb2312 character)");
+                    MVM_exception_throw_adhoc(tc, 
+					"Error decoding gb2312 string: invalid gb2312 format (two bytes for a gb2312 character). Last byte seen was 0x%hhX\n", last_codepoint);
                 }
 
                 if (last_was_cr) {
@@ -230,8 +232,8 @@ char * MVM_string_gb2312_encode_substr(MVMThreadContext *tc, MVMString *str,
                     else {
                         MVM_free(result);
                         MVM_exception_throw_adhoc(tc,
-                                                  "Error encoding gb2312 string: could not encode codepoint %d",
-                                                  gb2312_cp);
+                                                  "Error encoding gb2312 string: could not encode codepoint 0x%hhX",
+                                                  codepoint);
                     }
                 }
                 result[out_pos++] = gb2312_cp / 256;
