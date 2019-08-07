@@ -5,7 +5,7 @@ int input_rec[7500][2];
 int ret[94][94];
 int a[65511];
 
-void gen1()
+void generate_1()
 {
 	/* This function generates mappings from gb2312(EUC-CN form) to unicode */
 	/* Initialize */
@@ -61,22 +61,39 @@ void gen1()
 	cout<<endl;
 }
 
-void gen2()
+void generate_2()
 {
 	/* This function generates mappings for gb2312 characters 
-	    from unicode to gb2312(EUC-CN form) */
+	 * from unicode to gb2312(EUC-CN form) */
+	
+	/* Unicode index 1106 - 8212, 9795 - 12287, 12842 - 19967,
+	 * and 40865 - 65280 don't correspond to gb2312 codepoint.
+	 * To reduce code length and save memory, these intervals
+	 * are omitted in the conversion table. */
 	
 	/* Initialize */
 	memset(a,0,sizeof(a));
 	for(int i=1;i<=7445;i++) a[input_rec[i][1]]=input_rec[i][0];
 	
-	cout<<"const static MVMint32 gb2312_cp_to_index_record[65511]="<<endl;
+	for(int i=1106;i<=8212;i++) assert(a[i]==0);
+	for(int i=9795;i<=12287;i++) assert(a[i]==0);
+	for(int i=12842;i<=19967;i++) assert(a[i]==0);
+	for(int i=40865;i<=65280;i++) assert(a[i]==0);
+	
+	cout<<"const static MVMint32 gb2312_cp_to_index_record[24380]="<<endl;
 	cout<<'{';
 	
 	/* 'len' is used to record the length of current line */
 	int len=1;
+	int cnt=0;
 	for(int i=0;i<65511;i++)
 	{
+		/* Skip sections of '0's */
+		if (1106<=i && i<=8212) continue;
+		if (9795<=i && i<=12287) continue;
+		if (12842<=i && i<=19967) continue;
+		if (40865<=i && i<=65280) continue;
+		
 		if (i) {cout<<',';len++;}
 		if (len>=75)
 		{
@@ -102,8 +119,8 @@ void gen2()
 
 int main(int argc, char **argv)
 {
-	freopen(argv[1],"r",stdin);
-	freopen(argv[2],"w",stdout);
+	freopen("gb2312.txt","r",stdin);
+	freopen("gb2312_conversion_table.txt","w",stdout);
 	
 	int cp_count=0;
 	string s;
@@ -121,8 +138,8 @@ int main(int argc, char **argv)
 		input_rec[cp_count][0]+=0x8080;
 	}
 	
-	gen1();
-	gen2();
+	generate_1();
+	generate_2();
 	
 	return 0;
 }

@@ -1,28 +1,8 @@
 # GB2312-Encoding-for-MoarVM
 
-Todo Next:
+This repository stores all the files used in developing GB2312 encoding for MoarVM.
 
-+ Debug ``MVM_string_gb2312_decodestream``
-+ Debug `MVM_string_gb2312_encode` 
-+ Find out how to incorporate the code into MoarVM 
-+ Write the comments for all code
+My blog post describing the work: [Implementing the GB2312 Encoding](https://zhongniantao.wordpress.com/2019/07/15/implementing-the-gb2312-encoding/).
 
-Week 4:
-
-+ Implemented ``MVM_string_gb2312_encode`` function.
-+ Developed the conversion table from Unicode to GB2312(EUC-CN)
-
-Week 3:
-
-+ Tested `MVM_string_gb2312_decode` 
-+ Changed the codepoint mapping to a two-dimensional array
-
-Week 2:
-
-+ Finished a draft for ``MVM_string_gb2312_decodestream`` function. Further testing and debugging needed.
-
-Week 1:
-
-+ Developed the conversion table between GB2312(EUC-CN) and Unicode
-+ Finished a draft for `MVM_string_gb2312_decode` function. Further testing and debugging needed.
+PRs: [MoarVM (initial commit)](https://github.com/MoarVM/MoarVM/pull/1147), [MoarVM (conversion table update)](https://github.com/MoarVM/MoarVM/pull/1150), [Rakudo](https://github.com/rakudo/rakudo/pull/3079), [Roast](https://github.com/perl6/roast/pull/563). 
 

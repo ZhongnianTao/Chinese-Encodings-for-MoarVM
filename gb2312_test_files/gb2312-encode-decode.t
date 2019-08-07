@@ -1,13 +1,12 @@
 use Test;
 plan 5;
 
-#?rakudo.js.browser skip "reading and writing files doesn't work in the browser"
 {
     my $test-folder = "S32-str".IO.d ??  "S32-str" !! "t/spec/S32-str";
     $test-folder ~= "/text-samples";
-    my $fh = open "$test-folder/gb2312_sample_1_in_gb2312.txt", :r;
+    my $fh = open "$test-folder/gb2312_sample_in_gb2312.txt", :r;
     $fh.encoding('gb2312');
-    is-deeply $fh.slurp, "$test-folder/gb2312_sample_1_in_utf8.txt".IO.slurp, "gb2312 decoder correctly decodes some sample text";
+    is-deeply $fh.slurp, "$test-folder/gb2312_sample_in_utf8.txt".IO.slurp, "gb2312 decoder correctly decodes some sample text from files (decodestream tested)";
     $fh.close;
 }
 
