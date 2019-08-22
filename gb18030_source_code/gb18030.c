@@ -1,14 +1,19 @@
 #include "moar.h"
 #include "gb18030_codeindex.h"
 
-const int gb18030_two_byte_lower_bound[126]={
+/*  Information about GB18030: http://www.gb18030.com/
+    GB18030 to Unicode Mapping used (included in GNU LIBICONV Package):
+	ftp://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.7.tar.gz
+*/
+
+const MVMint32 gb18030_two_byte_lower_bound[126] = {
 64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,
 64,64,64,64,64,64,161,161,161,161,161,161,161,64,64,64,64,64,64,64,64,64,64,64,
 64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,
 64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,
 64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64};
 
-const int gb18030_two_byte_upper_bound[126]={
+const MVMint32 gb18030_two_byte_upper_bound[126] = {
 254,254,254,254,254,254,254,254,254,254,254,254,254,254,254,254,254,254,254,254,
 254,254,254,254,254,254,254,254,254,254,254,254,254,252,254,243,246,245,241,233,
 239,160,160,160,160,160,160,254,254,254,254,254,254,254,254,254,254,254,254,254,
@@ -16,38 +21,29 @@ const int gb18030_two_byte_upper_bound[126]={
 254,254,254,254,254,254,249,254,254,254,254,254,254,254,254,254,254,254,254,254,
 254,254,254,254,254,254,254,254,254,254,254,254,254,254,254,254,254,254,254,160,
 160,160,160,160,160,159};
-	
-MVMint32 is_valid_gb18030_two_byte(int c_1, int c_2)
-{
-	if (c_1 < 0x81 || c_1 > 0xfe) return 0;
-	c_1 -= 0x81;
-	return gb18030_two_byte_lower_bound[c_1] <= c_2 && c_2 <= gb18030_two_byte_upper_bound[c_1] ? 1 : 0;
-}
 
-
-MVMint32 gb18030_valid_check_len2(MVMint32 c_1, MVMint32 c_2)
-{
-	/* This function serves like a 'first stage check' of c_1 and c_2.
-	   It eliminates most of the invalid combinations of c_1 and c_2, 
-	   but for code simplicity and to avoid lots of if-else here,
-	   ther remaining invalid combinations will be processed 
-	   in the conversion table. */
-	if (c_1 < 0x81 || c_1 > 0xfe) return 0;
-	c_1 -= 0x81;
-	return gb18030_two_byte_lower_bound[c_1] <= c_2 && c_2 <= gb18030_two_byte_upper_bound[c_1] ? 1 : 0;
+MVMint32 gb18030_valid_check_len2(MVMint32 c_1, MVMint32 c_2) {
+    /* This function serves like a 'first stage check' of c_1 and c_2.
+       It eliminates most of the invalid combinations of c_1 and c_2, 
+       but for code simplicity and to avoid lots of if-else here,
+       ther remaining invalid combinations will be processed 
+       in the conversion table. */
+    if (c_1 < 0x81 || c_1 > 0xfe) return 0;
+    c_1 -= 0x81;
+    return gb18030_two_byte_lower_bound[c_1] <= c_2 && c_2 <= gb18030_two_byte_upper_bound[c_1] ? 1 : 0;
 }
 
 MVMint32 gb18030_valid_check_len4(MVMint32 c_1, MVMint32 c_2, MVMint32 c_3, MVMint32 c_4) {
-	if ((0x81 <= c_1 && c_1 <= 0x83) || (c_1 == 0x84 && c_2 == 0x30)) {
-		return (0x30 <= c_2 && c_2 <= 0x39) && (0x81 <= c_3 && c_3 <= 0xfe) && (0x30 <= c_4 && c_4 <= 0x39) ? 1 : 0;
-	} else if (c_1 == 0x84 && c_2 == 0x31) {
-		return (0x81 <= c_3 && c_3 <= 0xa4) && (0x30 <= c_4 && c_4 <= 0x39) ? 1 : 0;
-	}
-	return 0;
+    if ((0x81 <= c_1 && c_1 <= 0x83) || (c_1 == 0x84 && c_2 == 0x30)) {
+        return (0x30 <= c_2 && c_2 <= 0x39) && (0x81 <= c_3 && c_3 <= 0xfe) && (0x30 <= c_4 && c_4 <= 0x39) ? 1 : 0;
+    } else if (c_1 == 0x84 && c_2 == 0x31) {
+        return (0x81 <= c_3 && c_3 <= 0xa4) && (0x30 <= c_4 && c_4 <= 0x39) ? 1 : 0;
+    }
+    return 0;
 }
 
 MVMint32 gb18030_valid_check_len4_first2(MVMint32 c_1, MVMint32 c_2) {
-	return (((0x81 <= c_1 && c_1 <= 0x83) || (c_1 == 0x84 && c_2 == 0x30)) && (0x30 <= c_2 && c_2 <= 0x39))	|| (c_1 == 0x84 && c_2 == 0x31) ? 1 : 0;
+    return (((0x81 <= c_1 && c_1 <= 0x83) || (c_1 == 0x84 && c_2 == 0x30)) && (0x30 <= c_2 && c_2 <= 0x39))	|| (c_1 == 0x84 && c_2 == 0x31) ? 1 : 0;
 }
 
 MVMString * MVM_string_gb18030_decode(MVMThreadContext *tc, const MVMObject *result_type, const char *gb18030, size_t bytes) {
@@ -72,35 +68,37 @@ MVMString * MVM_string_gb18030_decode(MVMThreadContext *tc, const MVMObject *res
         }
         else {
             if (i + 1 < bytes) {
+            //  GB18030 codepoint of length 2
                 MVMuint8 byte1 = gb18030[i];
                 MVMuint8 byte2 = gb18030[i + 1];
                 if (gb18030_valid_check_len2(byte1, byte2)) {
-                	MVMGrapheme32 index = gb18030_index_to_cp_len2(byte1, byte2);
-	                if (index != GB18030_NULL) {
-	                    result->body.storage.blob_32[result_graphs++] = index;
-	                    i++;
-	                    continue;
-	                }
-	            }
+                    MVMGrapheme32 index = gb18030_index_to_cp_len2(byte1, byte2);
+                    if (index != GB18030_NULL) {
+                        result->body.storage.blob_32[result_graphs++] = index;
+                        i++;
+                        continue;
+                    }
+                }
             }
             if (i + 3 < bytes) {
+            //  GB18030 codepoint of length 4
                 MVMuint8 byte1 = gb18030[i];
                 MVMuint8 byte2 = gb18030[i + 1];
                 MVMuint8 byte3 = gb18030[i + 2];
                 MVMuint8 byte4 = gb18030[i + 3];
                 if (gb18030_valid_check_len4(byte1, byte2, byte3, byte4)) {
-                	MVMGrapheme32 index = gb18030_index_to_cp_len4(byte1, byte2, byte3, byte4);
-	                if (index != GB18030_NULL) {
-	                    result->body.storage.blob_32[result_graphs++] = index;
-	                    i+=3;
-	                    continue;
-	                }
-	            }
-	        }
-	        
+                    MVMGrapheme32 index = gb18030_index_to_cp_len4(byte1, byte2, byte3, byte4);
+                    if (index != GB18030_NULL) {
+                        result->body.storage.blob_32[result_graphs++] = index;
+                        i += 3;
+                        continue;
+                    }
+                }
+            }
+            
             MVM_exception_throw_adhoc(tc, 
             "Error decoding gb18030 string: invalid gb18030 format. Last byte seen was 0x%hhX\n", 
-			(MVMuint8)gb18030[i]);
+            (MVMuint8)gb18030[i]);
         }
     }
 
@@ -159,25 +157,24 @@ MVMuint32 MVM_string_gb18030_decodestream(MVMThreadContext *tc, MVMDecodeStream 
             MVMGrapheme32 graph;
             MVMint32 codepoint = (MVMint32) bytes[pos++];
             
-            if (is_len4)
-            {
-            	if (len4_cnt == 2) {
-            		len4_cnt++;
-            		len4_byte3 = codepoint;
-            		continue;
-            	}
-            	if (len4_cnt == 3) {
-            		len4_byte4 = codepoint;
-            		if (gb18030_valid_check_len4(len4_byte1, len4_byte2, len4_byte3, len4_byte4)) {
-            			graph = gb18030_index_to_cp_len4(len4_byte1, len4_byte2, len4_byte3, len4_byte4);
-            			is_len4 = 0;
-            		} else {
-              	    	MVM_exception_throw_adhoc(tc, 
-            		     "Error decoding gb18030 string: invalid gb18030 format. Last four bytes seen was 0x%hhX, 0x%hhX, 0x%hhX, 0x%hhX\n", 
-           			     len4_byte1, len4_byte2, len4_byte3, len4_byte4);
-           			}
-           		}
-           	}		
+            if (is_len4) {
+                if (len4_cnt == 2) {
+                    len4_cnt++;
+                    len4_byte3 = codepoint;
+                    continue;
+                }
+                if (len4_cnt == 3) {
+                    len4_byte4 = codepoint;
+                    if (gb18030_valid_check_len4(len4_byte1, len4_byte2, len4_byte3, len4_byte4)) {
+                        graph = gb18030_index_to_cp_len4(len4_byte1, len4_byte2, len4_byte3, len4_byte4);
+                        is_len4 = 0;
+                    } else {
+                        MVM_exception_throw_adhoc(tc, 
+                         "Error decoding gb18030 string: invalid gb18030 format. Last four bytes seen was 0x%hhX, 0x%hhX, 0x%hhX, 0x%hhX\n", 
+                         len4_byte1, len4_byte2, len4_byte3, len4_byte4);
+                    }
+                }
+            }
             else if (codepoint <= 127 && !last_was_first_byte) {
                 if (last_was_cr) {
                     if (codepoint == '\n') {
@@ -189,7 +186,7 @@ MVMuint32 MVM_string_gb18030_decodestream(MVMThreadContext *tc, MVMDecodeStream 
                     }
                     last_was_cr = 0;
                 }
-                else if (graph == '\r') {
+                else if (codepoint == '\r') {
                     last_was_cr = 1;
                     continue;
                 }
@@ -199,18 +196,18 @@ MVMuint32 MVM_string_gb18030_decodestream(MVMThreadContext *tc, MVMDecodeStream 
             }
             else {
                 if (last_was_first_byte) {
-					if (gb18030_valid_check_len4_first2(last_codepoint, codepoint)) {
-						is_len4 = 1;
-						len4_byte1 = last_codepoint;
-						len4_byte2 = codepoint;
-						len4_cnt = 2;
-						last_was_first_byte = 0;
-						continue;
-					}
+                    if (gb18030_valid_check_len4_first2(last_codepoint, codepoint)) {
+                        is_len4 = 1;
+                        len4_byte1 = last_codepoint;
+                        len4_byte2 = codepoint;
+                        len4_cnt = 2;
+                        last_was_first_byte = 0;
+                        continue;
+                    }
                     graph = gb18030_index_to_cp_len2(last_codepoint, codepoint);
                     if (graph == GB18030_NULL) {
                         MVM_exception_throw_adhoc(tc, 
-						"Error decoding gb18030 string: invalid gb18030 format. Last two bytes seen was 0x%hhX, 0x%hhX\n", 
+                        "Error decoding gb18030 string: invalid gb18030 format. Last two bytes seen was 0x%hhX, 0x%hhX\n", 
                         last_codepoint, codepoint);
                     }
                     last_was_first_byte = 0;
@@ -221,6 +218,7 @@ MVMuint32 MVM_string_gb18030_decodestream(MVMThreadContext *tc, MVMDecodeStream 
                     continue;
                 }
             }
+
 
             if (count == bufsize) {
                 /* We filled the buffer. Attach this one to the buffers
@@ -303,7 +301,6 @@ char * MVM_string_gb18030_encode_substr(MVMThreadContext *tc, MVMString *str,
                 result = MVM_realloc(result, result_alloc + 5);
             }
             if (codepoint <= 0x7F) {
-                /* Length = 1 */
                 result[out_pos++] = codepoint;
             }
             else {
@@ -327,15 +324,17 @@ char * MVM_string_gb18030_encode_substr(MVMThreadContext *tc, MVMString *str,
                     }
                 }
                 if (gb18030_cp <= 0xffff) {
-	                result[out_pos++] = gb18030_cp / 256;
-    	            result[out_pos++] = gb18030_cp % 256;
-    	        }
-    	        else {
-    	        	result[out_pos++] = (gb18030_cp / 16777216) % 256;
-    	        	result[out_pos++] = (gb18030_cp / 65536) % 256;
-    	        	result[out_pos++] = (gb18030_cp / 256) % 256;
-    	        	result[out_pos++] = gb18030_cp % 256;
-    	        }
+                //  Length = 2
+                    result[out_pos++] = gb18030_cp / 256;
+                    result[out_pos++] = gb18030_cp % 256;
+                }
+                else {
+                //  Length = 4
+                    result[out_pos++] = (gb18030_cp / 16777216) % 256;
+                    result[out_pos++] = (gb18030_cp / 65536) % 256;
+                    result[out_pos++] = (gb18030_cp / 256) % 256;
+                    result[out_pos++] = gb18030_cp % 256;
+                }
             }
         }
         result[out_pos] = 0;
@@ -345,4 +344,3 @@ char * MVM_string_gb18030_encode_substr(MVMThreadContext *tc, MVMString *str,
     if (repl_bytes) MVM_free(repl_bytes);
     return (char *)result;
 }
-
