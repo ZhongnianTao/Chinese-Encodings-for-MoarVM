@@ -33,7 +33,7 @@ MVMString * MVM_string_gb2312_decode(MVMThreadContext *tc, const MVMObject *resu
                     i++;
                 }
                 else {
-                    MVM_exception_throw_adhoc(tc, "Error decoding gb2312 string: could not decode codepoint 0x%hhX", codepoint);
+                    MVM_exception_throw_adhoc(tc, "Error decoding gb2312 string: could not decode codepoint 0x%x", codepoint);
                 }
             }
             else {
@@ -128,11 +128,11 @@ MVMuint32 MVM_string_gb2312_decodestream(MVMThreadContext *tc, MVMDecodeStream *
 
             if (handler_rtrn == GB2312_DECODE_FORMAT_EXCEPTION) {
                 MVM_exception_throw_adhoc(tc, 
-                "Error decoding gb2312 string: invalid gb2312 format (two bytes for a gb2312 character). Last byte seen was 0x%hhX\n", 
+                "Error decoding gb2312 string: invalid gb2312 format (two bytes for a gb2312 character). Last byte seen was 0x%x\n", 
                 last_codepoint);
             }
             else if (handler_rtrn == GB2312_DECODE_CODEPOINT_EXCEPTION) {
-                MVM_exception_throw_adhoc(tc, "Error decoding gb2312 string: could not decode codepoint 0x%hhX", 
+                MVM_exception_throw_adhoc(tc, "Error decoding gb2312 string: could not decode codepoint 0x%x", 
                 last_codepoint * 256 + codepoint);
             }
             else if (handler_rtrn == GB2312_DECODE_CONTINUE) {
@@ -258,7 +258,7 @@ char * MVM_string_gb2312_encode_substr(MVMThreadContext *tc, MVMString *str,
                         continue;
                     }
                     MVM_free(result);
-                    MVM_exception_throw_adhoc(tc, "Error encoding gb2312 string: could not encode codepoint 0x%hhX", codepoint);
+                    MVM_exception_throw_adhoc(tc, "Error encoding gb2312 string: could not encode codepoint 0x%x", codepoint);
                 }
                 result[out_pos++] = gb2312_cp / 256;
                 result[out_pos++] = gb2312_cp % 256;
